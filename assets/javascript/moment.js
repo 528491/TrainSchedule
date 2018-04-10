@@ -26,7 +26,8 @@ $(document).ready(function(){
         destination = $("#trainDestinationInput").val().trim();
         firstTrainTime = $("#trainTimeInput").val().trim();
         frequency = $("#trainFrequencyInput").val().trim();
-        console.log(trainName);
+        
+        //Calculate minutesAway based on inputed time
 
         firebase.database().ref().push({
             trainName: trainName,
@@ -46,8 +47,29 @@ $(document).ready(function(){
 
 
     //Listen for additional trains and their accompanying schedules being added
-    firebase.database().ref().on("value", function(snapshot){
+    firebase.database().ref().on("child_added", function(snapshot){
         //Change the table for when a train is added.
+        console.log(snapshot.val());
+
+        var newRow = $("<tr>");
+
+        var trainNameCell = $("<td>");
+        trainNameCell.text(snapshot.val().trainName);
+        newRow.append(trainNameCell);
+
+        var destinationCell = $("<td>");
+        destinationCell.text(snapshot.val().destination);
+        newRow.append(destinationCell);
+
+        //var firstTrainTimeCell = $("<td>");
+        //firstTrainTimeCell.text(snapshot.val().firstTrainTime);
+        //newRow.append(firstTrainTimeCell);
+
+        var frequencyCell = $("<td>");
+        frequencyCell.text(snapshot.val().frequency);
+        newRow.append(frequencyCell);
+
+        $("#trainSchedules").append(newRow);
     });
 
 
