@@ -29,11 +29,46 @@ $(document).ready(function(){
         
         //Calculate minutesAway based on inputed time
 
+        //Get the current time
+        var currentTime = Date.now();
+
+        //Get the minutes value from the current time
+        //Assume date is today
+        var userEnteredDateComponents = firstTrainTime.split(":");
+        var hours = userEnteredDateComponents[0];
+        var minutes = userEnteredDateComponents[1];
+        console.log(hours);
+        console.log(minutes);
+        var today = new Date();
+        var dateObjectFirstTrainTime = new Date(today.getFullYear(), today.getMonth(), today.getDate(), hours, minutes, 0);
+        
+        //Minutes will be the remainder (modulus) of the total minutes since the first train arrived and the frequency
+        var differenceInMilliseconds = Math.abs(currentTime - dateObjectFirstTrainTime);
+        var differenceInMinutes = Math.floor(differenceInMilliseconds / 1000 / 60);
+        console.log(differenceInMinutes);
+        var timeRemaining = frequency % differenceInMinutes;
+        console.log(timeRemaining);
+
+        //Calculate the next arrival time
+        var numHourstoWait = Math.floor(timeRemaining / 60);
+        var numMinutestoWait = 60 % timeRemaining;
+
+        var firstArrivalHours = parseInt(hours);
+        var firstArrivalMinutes = parseInt(minutes);
+
+        var nextArrivalHours = firstArrivalHours + numHourstoWait;
+        var nextArrivalMinutes = firstArrivalMinutes + numMinutestoWait;
+
+        var nextArrivalTime = nextArrivalHours + ":" + nextArrivalMinutes;
+        console.log(nextArrivalTime);
+
         firebase.database().ref().push({
             trainName: trainName,
             destination: destination,
             frequency: frequency,
-            firstTrainTime: firstTrainTime
+            nextArrivalTime: nextArrivalTime,
+            firstTrainTime: firstTrainTime,
+            timeRemaining: timeRemaining
         }, function(errorObject) {
             console.log("Errors handled: " + errorObject.code);
           });
@@ -61,13 +96,17 @@ $(document).ready(function(){
         destinationCell.text(snapshot.val().destination);
         newRow.append(destinationCell);
 
-        //var firstTrainTimeCell = $("<td>");
-        //firstTrainTimeCell.text(snapshot.val().firstTrainTime);
-        //newRow.append(firstTrainTimeCell);
-
         var frequencyCell = $("<td>");
         frequencyCell.text(snapshot.val().frequency);
         newRow.append(frequencyCell);
+
+        var nextArrivalTimeCell = $("<td>");
+        nextArrivalTimeCell.text(snapshot.val().nextArrivalTime);
+        newRow.append(nextArrivalTimeCell);
+
+        var minutesAwayCell = $("<td>");
+        minutesAwayCell.text(snapshot.val().timeRemaining);
+        newRow.append(minutesAwayCell);
 
         $("#trainSchedules").append(newRow);
     });
