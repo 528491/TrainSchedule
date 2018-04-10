@@ -19,20 +19,36 @@ $(document).ready(function(){
 
     //Create a click listener for the addTrain button that will update the necessary variables
     //in accordance with the user input.
-    $("#addTrain").on("click", function(){
+    $("#addTrain").on("click", function(event){
+        event.preventDefault();
+
         trainName = $("#trainNameInput").val().trim();
         destination = $("#trainDestinationInput").val().trim();
-        frequency = $("#trainTimeInput").val().trim();
-        firstTrainTime = $("#trainFrequencyInput").val().trim();
+        firstTrainTime = $("#trainTimeInput").val().trim();
+        frequency = $("#trainFrequencyInput").val().trim();
+        console.log(trainName);
 
-        firebase.database().ref().set({
+        firebase.database().ref().push({
             trainName: trainName,
             destination: destination,
             frequency: frequency,
             firstTrainTime: firstTrainTime
-        });
+        }, function(errorObject) {
+            console.log("Errors handled: " + errorObject.code);
+          });
+
+        //Clear existing values in the input fields
+        $("#trainNameInput").val("");
+        $("#trainDestinationInput").val("");
+        $("#trainTimeInput").val("");
+        $("#trainFrequencyInput").val("");
     });
 
+
+    //Listen for additional trains and their accompanying schedules being added
+    firebase.database().ref().on("value", function(snapshot){
+        //Change the table for when a train is added.
+    });
 
 
 });
